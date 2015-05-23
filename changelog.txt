@@ -6,3 +6,4 @@
 5. Optimized SLUB.
 6. Asynchronous I/O latency to a solid-state disk greatly increased .
 7. NOATIME and NODIRATIME by default.
+8. Enabled aggressive multi-core power savings 
