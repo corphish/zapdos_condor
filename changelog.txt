@@ -1,2 +1,5 @@
 --Initial Build--
 1. Disabled Gentle fair sleepers.
+2. Disabled CRC check.
+3. Reduced swappiness.
+4. Added bunch of advanced TCP Congestion Controls.
