@@ -3,3 +3,4 @@
 2. Disabled CRC check.
 3. Reduced swappiness.
 4. Added bunch of advanced TCP Congestion Controls.
+5. Optimized SLUB.
