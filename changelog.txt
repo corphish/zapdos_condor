@@ -4,3 +4,4 @@
 3. Reduced swappiness.
 4. Added bunch of advanced TCP Congestion Controls.
 5. Optimized SLUB.
+6. Asynchronous I/O latency to a solid-state disk greatly increased 
