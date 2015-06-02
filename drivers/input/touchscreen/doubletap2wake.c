@@ -57,12 +57,14 @@ MODULE_LICENSE("GPLv2");
 /* Tuneables */
 #define DT2W_DEBUG		0
 #define DT2W_DEFAULT		0
-
+#define MM_DEFAULT              
 #define DT2W_PWRKEY_DUR		60
 #define DT2W_TIME		700
 
 /* Resources */
 int dt2w_switch = DT2W_DEFAULT;
+int mm_switch = MM_DEFAULT;
+int key = KEY_POWER;
 bool dt2w_scr_suspended = false;
 int dt2w_feather = 200, dt2w_feather_w = 1;
 static cputime64_t tap_time_pre = 0;
@@ -122,10 +124,10 @@ static void doubletap2wake_reset(void) {
 static void doubletap2wake_presspwr(struct work_struct * doubletap2wake_presspwr_work) {
 	if (!mutex_trylock(&pwrkeyworklock))
                 return;
-	input_event(doubletap2wake_pwrdev, EV_KEY, KEY_POWER, 1);
+	input_event(doubletap2wake_pwrdev, EV_KEY, key, 1);
 	input_event(doubletap2wake_pwrdev, EV_SYN, 0, 0);
 	msleep(DT2W_PWRKEY_DUR);
-	input_event(doubletap2wake_pwrdev, EV_KEY, KEY_POWER, 0);
+	input_event(doubletap2wake_pwrdev, EV_KEY, key, 0);
 	input_event(doubletap2wake_pwrdev, EV_SYN, 0, 0);
 	msleep(DT2W_PWRKEY_DUR);
         mutex_unlock(&pwrkeyworklock);
@@ -156,6 +158,16 @@ static void new_touch(int x, int y) {
 	touch_nr++;
 }
 
+int define_feather(int dt2w_feather_t) {
+        if (dt2w_feather_t == 2)
+		dt2w_feather = 100;
+	else if (dt2w_feather_t == 3)
+		dt2w_feather = 40;
+	else
+		dt2w_feather = 200;
+       return dt2w_feather;
+}
+
 /* Doubletap2wake main function */
 static void detect_doubletap2wake(int x, int y, bool st)
 {
@@ -164,12 +176,7 @@ static void detect_doubletap2wake(int x, int y, bool st)
         pr_info(LOGTAG"x,y(%4d,%4d) single:%s\n",
                 x, y, (single_touch) ? "true" : "false");
 #endif
-	if (dt2w_feather_w == 2)
-		dt2w_feather = 100;
-	else if (dt2w_feather_w == 3)
-		dt2w_feather = 40;
-	else
-		dt2w_feather = 200;
+	dt2w_feather = define_feather(dt2w_feather_w);
 	if ((single_touch) && (dt2w_switch > 0) && (exec_count) && (touch_cnt)) {
 		
 		if ((ktime_to_ms(ktime_get())-tap_time_pre) >= DT2W_TIME)
