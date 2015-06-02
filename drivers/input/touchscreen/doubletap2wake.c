@@ -57,7 +57,7 @@ MODULE_LICENSE("GPLv2");
 /* Tuneables */
 #define DT2W_DEBUG		0
 #define DT2W_DEFAULT		0
-#define MM_DEFAULT              
+#define MM_DEFAULT              0
 #define DT2W_PWRKEY_DUR		60
 #define DT2W_TIME		700
 
@@ -167,11 +167,20 @@ int define_feather(int dt2w_feather_t) {
 		dt2w_feather = 200;
        return dt2w_feather;
 }
-
+int touch_position(int x, int y) {
+   if(x < 180 && (y > 355 && y < 605))
+       return 1;
+   if((x > 180 && x <360) && (y > 355 && y < 605))
+       return 2;
+   if(x > 360 && (y > 355 && y < 605))
+       return 3;
+   return 0;
+}
 /* Doubletap2wake main function */
 static void detect_doubletap2wake(int x, int y, bool st)
 {
         bool single_touch = st;
+        int key = KEY_POWER;
 #if DT2W_DEBUG
         pr_info(LOGTAG"x,y(%4d,%4d) single:%s\n",
                 x, y, (single_touch) ? "true" : "false");
@@ -183,8 +192,31 @@ static void detect_doubletap2wake(int x, int y, bool st)
 			doubletap2wake_reset();
 		
 		if (touch_nr == 0) {
-			new_touch(x, y);
+                        if(mm_switch) {
+                            if ((calc_feather(x, x_pre) < dt2w_feather) &&
+			    (calc_feather(y, y_pre) < dt2w_feather)) {
+				pr_info(LOGTAG"Music Mode ON\n");
+				exec_count = false;
+                                if(touch_position(x,y)==0) {
+                                    new_touch(x,y);
+                                }
+                                if(touch_position(x,y)==1) {
+                                    key = KEY_PREVIOUSSONG;
+                                }
+                                if(touch_position(x,y)==2) {
+                                    key = KEY_PLAYPAUSE;
+                                }
+                                if(touch_position(x,y)==3) {
+                                    key = KEY_NEXTSONG;
+                                }
+				doubletap2wake_pwrtrigger();
+				doubletap2wake_reset();
+                           }
+                         } else {
+			    new_touch(x, y);
+                      }
 		} else if (touch_nr == 1) {
+                        key = KEY_POWER;
 			if ((calc_feather(x, x_pre) < dt2w_feather) &&
 			    (calc_feather(y, y_pre) < dt2w_feather)) {
 				pr_info(LOGTAG"ON\n");
@@ -352,6 +384,29 @@ static ssize_t dt2w_doubletap2wake_dump(struct device *dev,
 static DEVICE_ATTR(doubletap2wake, (S_IWUSR|S_IRUGO),
 	dt2w_doubletap2wake_show, dt2w_doubletap2wake_dump);
 
+static ssize_t mm_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	size_t count = 0;
+
+	count += sprintf(buf, "%d\n", mm_switch);
+
+	return count;
+}
+
+static ssize_t mm_dump(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
+                if (mm_switch != buf[0] - '0')
+		        mm_switch = buf[0] - '0';
+
+	return count;
+}
+
+static DEVICE_ATTR(music_mode, (S_IWUSR|S_IRUGO),
+	mm_show, mm_dump);
+
 static ssize_t dt2w_feather_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -415,6 +470,9 @@ static int __init doubletap2wake_init(void)
 	}
 
 	input_set_capability(doubletap2wake_pwrdev, EV_KEY, KEY_POWER);
+        input_set_capability(doubletap2wake_pwrdev, EV_KEY, KEY_PLAYPAUSE);
+        input_set_capability(doubletap2wake_pwrdev, EV_KEY, KEY_PREVIOUSSONG);
+        input_set_capability(doubletap2wake_pwrdev, EV_KEY, KEY_NEXTSONG);
 	doubletap2wake_pwrdev->name = "dt2w_pwrkey";
 	doubletap2wake_pwrdev->phys = "dt2w_pwrkey/input0";
 
@@ -453,6 +511,10 @@ static int __init doubletap2wake_init(void)
 		pr_warn("%s: sysfs_create_file failed for doubletap2wake_version\n", __func__);
 	}
 	rc = sysfs_create_file(android_touch_kobj, &dev_attr_doubletap2wake_feather.attr);
+	if (rc) {
+		pr_warn("%s: sysfs_create_file failed for doubletap2wake_feather\n", __func__);
+	}
+        rc = sysfs_create_file(android_touch_kobj, &dev_attr_music_mode.attr);
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for doubletap2wake_feather\n", __func__);
 	}
