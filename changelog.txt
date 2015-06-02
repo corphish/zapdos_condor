@@ -13,3 +13,4 @@
 10. Sound Control 3.4.
 11. Added BFQ IO Scheduler.
 12. Added governors.
+13. Enabled ARCH_POWER.

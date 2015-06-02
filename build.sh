@@ -43,7 +43,7 @@ if [ -a $ZIMAGE ];
 then
 echo "Copying modules"
 #rm $MODULES_DIR/*
-find . -name '*.ko' -exec cp {} $ZIP_DIR/system/lib/modules \;
+find . -name '*.ko' -exec cp {} modules \;
 cd modules
 echo "Stripping modules for size"
 $STRIP --strip-unneeded *.ko
