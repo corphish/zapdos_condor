@@ -14,3 +14,14 @@
 11. Added BFQ IO Scheduler.
 12. Added governors.
 13. Enabled ARCH_POWER.
+
+--v1.2--
+14. Added Double Tap to Wake.
+15. Improved square root algorithm.
+16. Sound Recording capabilities extened to 320Kbps.
+17. Disabled some debugging.
+18. No 'dirty things' in Kernel Info.
+
+--v1.3--
+19. Fixed Double Tap 2 Wake
+20. Fixed accelerometer in kernel level.
