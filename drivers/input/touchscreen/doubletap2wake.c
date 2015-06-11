@@ -161,7 +161,7 @@ if(DT2W_DEBUG)
   pr_info("In fuction %s\n",__func__);
 }
 
-int touch_position(int x, int y) {
+/*int touch_position(int x, int y) {
        if((x > 0 && x < 180) &&  (y > 380 && y < 580))
            return 1;
        if((x > 180 && x < 360) &&  (y > 380 && y < 580))
@@ -169,7 +169,7 @@ int touch_position(int x, int y) {
        if((x > 360 && x < 540) &&  (y > 380 && y < 580))
            return 3;
        return 0;
-}
+}*/
 
 /* Doubletap2wake main function */
 static void detect_doubletap2wake(int x, int y, bool st)
@@ -385,7 +385,7 @@ static ssize_t dt2w_version_dump(struct device *dev,
 static DEVICE_ATTR(doubletap2wake_version, (S_IWUSR|S_IRUGO),
 	dt2w_version_show, dt2w_version_dump);
 
-static ssize_t mm_show(struct device *dev,
+/*static ssize_t mm_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
 	size_t count = 0;
@@ -406,7 +406,7 @@ static ssize_t mm_dump(struct device *dev,
 }
 
 static DEVICE_ATTR(music_mode, (S_IWUSR|S_IRUGO),
-	mm_show, mm_dump);
+	mm_show, mm_dump);*/
 
 /*
  * INIT / EXIT stuff below here
@@ -448,10 +448,10 @@ static int __init doubletap2wake_init(void)
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for doubletap2wake_version\n", __func__);
 	}
-        rc = sysfs_create_file(android_touch_kobj, &dev_attr_music_mode.attr);
+        /*rc = sysfs_create_file(android_touch_kobj, &dev_attr_music_mode.attr);
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for music_mode\n", __func__);
-	}
+	}*/
 
 	input_free_device(doubletap2wake_pwrdev);
 	pr_info(LOGTAG"%s done\n", __func__);
