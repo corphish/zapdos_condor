@@ -37,6 +37,21 @@
 #include <linux/uaccess.h>
 #include <linux/wakelock.h>
 #include <linux/workqueue.h>
+#include <linux/earlysuspend.h>		
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP		
+#ifdef CONFIG_POWERSUSPEND		
+#include <linux/powersuspend.h>		
+#endif		
+#endif
+
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#include <linux/input/doubletap2wake.h>
+bool prox_covered = false;
+extern bool forced;
+extern bool screen_suspended ;
+extern void delayed_touch_suspend(void);
+extern void touch_resume(void);
+#endif
 
 #define CT406_I2C_RETRIES	2
 #define CT406_I2C_RETRY_DELAY	10
@@ -223,14 +238,7 @@ static struct ct406_reg {
 #define CT406_DBG_SUSPEND_RESUME	0x00000010
 static u32 ct406_debug = 0x00000000;
 
-#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-#include <linux/input/doubletap2wake.h>
-bool prox_covered = false;
-extern bool forced;
-extern bool screen_suspended ;
-extern void delayed_touch_suspend(void);
-extern void touch_resume(void);
-#endif
+
 
 module_param_named(debug_mask, ct406_debug, uint, 0644);
 
