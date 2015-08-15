@@ -46,6 +46,7 @@
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
 #include <linux/input/doubletap2wake.h>
+int prox_switch = 1;
 bool prox_covered = false;
 extern bool forced;
 extern bool screen_suspended ;
@@ -567,11 +568,13 @@ static void ct406_prox_mode_uncovered(struct ct406_data *ct)
 		piht = ct->pdata_max;
         
         #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+         if(prox_switch) {
               if (dt2w_switch > 0) {
                    prox_covered = false;
                    if (screen_suspended)
                       touch_resume();
                  }
+               }
         #endif
 
 	ct->prox_mode = CT406_PROX_MODE_UNCOVERED;
@@ -595,12 +598,14 @@ static void ct406_prox_mode_covered(struct ct406_data *ct)
 	ct->prox_high_threshold = piht;
 	ct406_write_prox_thresholds(ct);
         #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+         if (prox_switch) {
              if (dt2w_switch > 0) {
                  prox_covered = true;
                  if (screen_suspended) {
                         delayed_touch_suspend();
                    }
              }
+        }
         #endif
 	pr_info("%s: Prox mode covered\n", __func__);
 }
@@ -1596,12 +1601,51 @@ ct406_of_init(struct i2c_client *client)
 }
 #endif
 
+//sysfs for dt2w pocket mode start
+static ssize_t pocket_mode_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	size_t count = 0;
+
+	count += sprintf(buf, "%d\n", prox_switch);
+
+	return count;
+}
+
+static ssize_t pocket_mode_dump(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	if (buf[0] >= '0' && buf[0] <= '1' && buf[1] == '\n')
+                if (prox_switch != buf[0] - '0')
+		        prox_switch = buf[0] - '0';
+
+	return count;
+}
+
+static DEVICE_ATTR(pocket_mode, (S_IWUSR|S_IRUGO),
+	pocket_mode_show, pocket_mode_dump);
+
+struct kobject *pocket_mode_kobj;
+
+//sysfs for dt2w pocket mode end
+
+
 static int ct406_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
 {
 	struct ct406_platform_data *pdata;
 	struct ct406_data *ct;
 	int error = 0;
+	int rc = 0;
+
+	pocket_mode_kobj = kobject_create_and_add("dt2w", kernel_kobj) ;
+	if (pocket_mode_kobj == NULL) {
+		pr_warn("%s: android_touch_kobj create_and_add failed\n", __func__);
+	}
+	rc = sysfs_create_file(pocket_mode_kobj, &dev_attr_pocket_mode.attr);
+	if (rc) {
+		pr_warn("%s: sysfs_create_file failed for pocket_mode\n", __func__);
+	}
 
 	if (client->dev.of_node)
 		pdata = ct406_of_init(client);
@@ -1735,7 +1779,7 @@ static int ct406_probe(struct i2c_client *client,
 
         
        #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-          if (dt2w_switch > 0)
+          if (dt2w_switch > 0 && prox_switch == 1)
              ct406_enable_prox(ct);
        #endif
 /*
@@ -1783,6 +1827,8 @@ static int ct406_remove(struct i2c_client *client)
 	struct ct406_data *ct = i2c_get_clientdata(client);
 
 	unregister_pm_notifier(&ct->pm_notifier);
+
+	kobject_del(pocket_mode_kobj);
 
 	device_remove_file(&client->dev, &dev_attr_registers);
 

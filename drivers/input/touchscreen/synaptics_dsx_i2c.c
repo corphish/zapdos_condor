@@ -45,6 +45,7 @@ extern bool prox_covered;
 static struct workqueue_struct *touch_state_wq;
 static struct delayed_work change_state_work;
 void touch_suspend(struct work_struct *);
+int dt2w_irq_enabled = 0;
 #endif
 
 #define DRIVER_NAME "synaptics_dsx_i2c"
@@ -2152,6 +2153,7 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
                  irq_set_irq_wake(rmi4_data->irq, 1);
+		 dt2w_irq_enabled = 1;	
 #endif
 		dev_dbg(&rmi4_data->i2c_client->dev,
 				"%s: Started irq thread\n", __func__);
@@ -2164,7 +2166,10 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 			rmi4_data->irq_enabled = false;
 	
 #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-                irq_set_irq_wake(rmi4_data->irq, 0);
+		if(dt2w_irq_enabled) {
+                     irq_set_irq_wake(rmi4_data->irq, 0);
+                     dt2w_irq_enabled = 0;
+                }
 #endif
 		dev_dbg(&rmi4_data->i2c_client->dev,
 				"%s: Stopped irq thread\n", __func__);
@@ -2173,6 +2178,7 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 
 	return retval;
 }
+
 
  /**
  * synaptics_rmi4_f11_init()
@@ -3703,11 +3709,17 @@ static int synaptics_rmi4_suspend(struct device *dev)
 	struct synaptics_rmi4_data *rmi4_data = dev_get_drvdata(dev);
 	const struct synaptics_dsx_platform_data *platform_data =
 			rmi4_data->board;
-        #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
          if (dt2w_switch) {
-               if (prox_covered) {
-        #endif
-
+               if (!prox_covered) {
+               	return 0;
+               } else {
+               	goto dt2w_prox_init_suspend;
+               }
+           } else {
+#endif
+    goto dt2w_prox_init_suspend;  //huh, you get warnings for almost everything in ISO C90, and then some are treated as errors -___-
+    dt2w_prox_init_suspend:
 	synaptics_dsx_sensor_state(rmi4_data, STATE_SUSPEND);
 	rmi4_data->poweron = false;
 
@@ -3730,11 +3742,7 @@ static int synaptics_rmi4_suspend(struct device *dev)
 		rmi4_data->touch_stopped = true;
 	}
       #ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
-     } else {
-          pr_info("suspend avoided!\n");
-          return 0;
-       } 
-   }
+     } 
       #endif
 
 
