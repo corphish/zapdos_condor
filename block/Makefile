@@ -18,14 +18,11 @@ obj-$(CONFIG_IOSCHED_CFQ)	+= cfq-iosched.o
 obj-$(CONFIG_IOSCHED_SIO)  += sio-iosched.o
 obj-$(CONFIG_IOSCHED_TEST)	+= test-iosched.o
 obj-$(CONFIG_IOSCHED_FIOPS)	+= fiops-iosched.o
-<<<<<<< HEAD
 obj-$(CONFIG_IOSCHED_TRIPNDROID) += tripndroid-iosched.o
 obj-$(CONFIG_IOSCHED_FIFO) += fifo-iosched.o
 obj-$(CONFIG_IOSCHED_VR) += vr-iosched.o
 obj-$(CONFIG_IOSCHED_ZEN) += zen-iosched.o
 obj-$(CONFIG_IOSCHED_BFQ)	+= bfq-iosched.o
-=======
->>>>>>> 4ae9674bf2c2b4ed0a1b49d6801c5b29b098cae9
 
 obj-$(CONFIG_BLOCK_COMPAT)	+= compat_ioctl.o
 obj-$(CONFIG_BLK_DEV_INTEGRITY)	+= blk-integrity.o
