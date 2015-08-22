@@ -71,3 +71,4 @@ obj-$(CONFIG_LTC4088_CHARGER)	+= ltc4088-charger.o
 obj-$(CONFIG_CHARGER_SMB347)	+= smb347-charger.o
 obj-$(CONFIG_BATTERY_BCL)	+= battery_current_limit.o
 obj-$(CONFIG_QPNP_CHARGER_FACTORY) += qpnp-charger-factory.o
+obj-$(CONFIG_ZAPDOS_CHARGER_CONTROL) += zapdos_charger_control.o
