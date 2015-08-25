@@ -33,6 +33,10 @@
 #include <linux/android_alarm.h>
 #include <linux/spinlock.h>
 
+#ifdef CONFIG_ZAPDOS_CHARGER_CONTROL
+#include "zapdos_charger_control.h"
+#endif
+
 /* Interrupt offsets */
 #define INT_RT_STS(base)			(base + 0x10)
 #define INT_SET_TYPE(base)			(base + 0x11)
@@ -814,8 +818,16 @@ qpnp_chg_idcmax_set(struct qpnp_chg_chip *chip, int mA)
 		return qpnp_chg_write(chip, &dc,
 			chip->dc_chgpth_base + CHGR_I_MAX_REG, 1);
 	}
+#ifdef CONFIG_ZAPDOS_CHARGER_CONTROL
+	if(master_switch)
+		dc = custom_current / QPNP_CHG_I_MAXSTEP_MA;
+	else
+		dc = mA / QPNP_CHG_I_MAXSTEP_MA;
+
+#else
 
 	dc = mA / QPNP_CHG_I_MAXSTEP_MA;
+#endif
 
 	pr_debug("current=%d setting 0x%x\n", mA, dc);
 	rc = qpnp_chg_write(chip, &dc,
@@ -890,6 +902,10 @@ qpnp_chg_iusbmax_set(struct qpnp_chg_chip *chip, int mA)
 	}
 
 	/* Impose input current limit */
+#ifdef CONFIG_ZAPDOS_CHARGER_CONTROL
+	if(master_switch)
+		mA = custom_current;
+#endif
 	if (chip->maxinput_usb_ma)
 		mA = (chip->maxinput_usb_ma) <= mA ? chip->maxinput_usb_ma : mA;
 

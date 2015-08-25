@@ -1602,6 +1602,7 @@ ct406_of_init(struct i2c_client *client)
 #endif
 
 //sysfs for dt2w pocket mode start
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
 static ssize_t pocket_mode_show(struct device *dev,
 		struct device_attribute *attr, char *buf)
 {
@@ -1628,7 +1629,7 @@ static DEVICE_ATTR(pocket_mode, (S_IWUSR|S_IRUGO),
 struct kobject *pocket_mode_kobj;
 
 //sysfs for dt2w pocket mode end
-
+#endif
 
 static int ct406_probe(struct i2c_client *client,
 		       const struct i2c_device_id *id)
@@ -1636,8 +1637,12 @@ static int ct406_probe(struct i2c_client *client,
 	struct ct406_platform_data *pdata;
 	struct ct406_data *ct;
 	int error = 0;
-	int rc = 0;
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
+	int rc = 0;
+#endif
+	
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
 	pocket_mode_kobj = kobject_create_and_add("dt2w", kernel_kobj) ;
 	if (pocket_mode_kobj == NULL) {
 		pr_warn("%s: android_touch_kobj create_and_add failed\n", __func__);
@@ -1646,7 +1651,7 @@ static int ct406_probe(struct i2c_client *client,
 	if (rc) {
 		pr_warn("%s: sysfs_create_file failed for pocket_mode\n", __func__);
 	}
-
+#endif
 	if (client->dev.of_node)
 		pdata = ct406_of_init(client);
 	else
@@ -1828,7 +1833,9 @@ static int ct406_remove(struct i2c_client *client)
 
 	unregister_pm_notifier(&ct->pm_notifier);
 
+#ifdef CONFIG_TOUCHSCREEN_DOUBLETAP2WAKE
 	kobject_del(pocket_mode_kobj);
+#endif
 
 	device_remove_file(&client->dev, &dev_attr_registers);
 

@@ -1,7 +1,7 @@
 /*
  * Copyright © 2015, Avinaba Dalal "corphish" <d97.avinaba@gmail.com>
  *
- * Charger Control driver for smb1360-charger-fg
+ * Charger Control driver for qpnp-charger
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -24,11 +24,11 @@
 #define DRIVER_MAJOR_VERSION 		1
 #define DRIVER_MINOR_VERSION 		0
 
-#define MAX_CUSTOM_CURRENT			1000
-#define MIN_CUSTOM_CURRENT			100		//TBD 
+#define MAX_CUSTOM_CURRENT			2000
+#define MIN_CUSTOM_CURRENT			500		//TBD 
 
 #define DEFAULT_SWITCH 				0		//Master Switch disabled by default
-#define DEFAULT_CURRENT				500		
+#define DEFAULT_CURRENT				1000		
 
 //Tuneables
 int master_switch = DEFAULT_SWITCH;		//disabled by default
@@ -169,4 +169,4 @@ module_init(charger_control_probe);
 module_exit(charger_control_remove);
 MODULE_LICENSE("GPL and additional rights");
 MODULE_AUTHOR("Avinaba Dalal <d97.avinaba@gmail.com>");
-MODULE_DESCRIPTION("SMB1360 Charger control driver");
+MODULE_DESCRIPTION("q-pnp Charger control driver");

@@ -1,7 +1,7 @@
 /*
  * Copyright © 2015, Avinaba Dalal "corphish" <d97.avinaba@gmail.com>
  *
- * Charger Control driver for smb1360-charger-fg
+ * Charger Control driver for qpnp-charger
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
