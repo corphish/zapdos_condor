@@ -24,11 +24,11 @@
 #define DRIVER_MAJOR_VERSION 		1
 #define DRIVER_MINOR_VERSION 		0
 
-#define MAX_CUSTOM_CURRENT			2000
-#define MIN_CUSTOM_CURRENT			500		//TBD 
+#define MAX_CUSTOM_CURRENT			1000
+#define MIN_CUSTOM_CURRENT			500		
 
 #define DEFAULT_SWITCH 				0		//Master Switch disabled by default
-#define DEFAULT_CURRENT				1000		
+#define DEFAULT_CURRENT				600		
 
 //Tuneables
 int master_switch = DEFAULT_SWITCH;		//disabled by default
