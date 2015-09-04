@@ -91,9 +91,14 @@ void doubletap2wake_setdev(struct input_dev * input_device) {
 /* Read cmdline for dt2w */
 static int __init read_dt2w_cmdline(char *dt2w)
 {
-	if (strcmp(dt2w, "1") == 0) {
+        if (strcmp(dt2w, "2") == 0) {
 		pr_info("[cmdline_dt2w]: DoubleTap2Wake enabled. | dt2w='%s'\n", dt2w);
 		dt2w_switch = 1;
+		key = KEY_CAMERA;
+	} else if (strcmp(dt2w, "1") == 0) {
+		pr_info("[cmdline_dt2w]: DoubleTap2Wake enabled. | dt2w='%s'\n", dt2w);
+		dt2w_switch = 1;
+		key = KEY_POWER;
 	} else if (strcmp(dt2w, "0") == 0) {
 		pr_info("[cmdline_dt2w]: DoubleTap2Wake disabled. | dt2w='%s'\n", dt2w);
 		dt2w_switch = 0;
@@ -121,7 +126,10 @@ static void doubletap2wake_presspwr(struct work_struct * doubletap2wake_presspwr
                 return;
 	input_event(doubletap2wake_pwrdev, EV_KEY, key, 1);
 	input_event(doubletap2wake_pwrdev, EV_SYN, 0, 0);
-	msleep(DT2W_PWRKEY_DUR);
+	if(key == KEY_CAMERA)
+		msleep(5000);
+	else
+		msleep(DT2W_PWRKEY_DUR);
 	input_event(doubletap2wake_pwrdev, EV_KEY, key, 0);
 	input_event(doubletap2wake_pwrdev, EV_SYN, 0, 0);
 	msleep(DT2W_PWRKEY_DUR);
@@ -175,7 +183,7 @@ if(DT2W_DEBUG)
 static void detect_doubletap2wake(int x, int y, bool st)
 {
         bool single_touch = st;
-        key = KEY_POWER;
+        
 #if DT2W_DEBUG
         pr_info(LOGTAG"x,y(%4d,%4d) single:%s\n",
                 x, y, (single_touch) ? "true" : "false");
