@@ -81,6 +81,10 @@ GRTAGS
 GSYMS
 GTAGS
 
+#Local
+zip/archives
+zImage-dtb
+
 *.orig
 *~
 \#*#
