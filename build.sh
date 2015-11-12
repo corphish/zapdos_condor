@@ -1,5 +1,6 @@
  #
  # Copyright � 2014, Varun Chitre "varun.chitre15" <varun.chitre15@gmail.com>
+ # Copyright � 2015, Avinaba Dalal "corphish" <d97.avinaba@gmail.com>
  #
  # Custom build script
  #
@@ -13,50 +14,49 @@
  # GNU General Public License for more details.
  #
  #
+
+
 #!/bin/bash
-# export CROSS_COMPILE="/root/toolchains/arm-eabi-linaro-4.6.2/bin/arm-eabi-"
-# export CROSS_COMPILE="/root/cm11/prebuilts/gcc/linux-x86/arm/arm-eabi-4.7/bin/arm-eabi-"
-# export CROSS_COMPILE="/root/linaro/4.9.3-2014.12.20141230.CR83/bin/arm-eabi-"
-STRIP="/home/corphish/android/toolchain/linaro-4.9.3-arm-cortex-a15/bin/arm-eabi-strip"
-MODULES_DIR="/home/corphish/android/kernel/condor/zapdos_condor/modules"
+#Variables
+STRIP="/home/corphish/android/toolchains/linaro/linaro-4.9.4/bin/arm-eabi-strip"
 ZIMAGE="/home/corphish/android/kernel/condor/zapdos_condor/arch/arm/boot/zImage-dtb"
-KERNEL_DIR="/home/corphish/android/kernel/taoshan/android_kernel_sony_msm8930-cm-12.0"
-MKBOOTIMG="/home/corphish/android/binaries/mkbootimg"
-MKBOOTFS="/home/corphish/android/binaries/mkbootfs"
-#ZIP_DIR="/home/corphish/android/kernel/android_kernel_sony_msm8930-cm-12.0/zip"
+KERNEL_DIR="/home/corphish/android/kernel/condor/zapdos_condor"
+ZIP_DIR="/home/corphish/android/kernel/condor/zapdos_condor/zip/raw"
+KERNEL="zImage-dtb"
+
+#Main
 BUILD_START=$(date +"%s")
 export ARCH=arm
 export SUBARCH=arm
-export CROSS_COMPILE=/home/corphish/android/toolchain/linaro-4.9.3-arm-cortex-a15/bin/arm-eabi-
-export KBUILD_BUILD_USER="corphish"
-export KBUILD_BUILD_HOST="Damned-PC"
-if [ -a $KERNEL_DIR/arch/arm/boot/zImage ];
+export CROSS_COMPILE=/home/corphish/android/toolchains/linaro/linaro-4.9.4/bin/arm-eabi-
+export KBUILD_BUILD_USER="avinaba"
+export KBUILD_BUILD_HOST="build"
+if [ -a $KERNEL_DIR/arch/arm/boot/$KERNEL ];
 then
 rm $ZIMAGE
-#rm $MODULES_DIR/*
-#rm $ZIP_DIR/boot.img
-#rm $ZIP_DIR/system/lib/modules/*
+rm $ZIP_DIR/system/lib/modules/*
 fi
+if [ $1 = "dt2w" ]
+then
+echo "Initializing build for dt2w version"
+make  cm_condor_dt2w_defconfig
+else
+echo "Initializing build for non-dt2w version"
 make cm_condor_defconfig
-make -j32
+fi
+echo "Building Kernel"
+make
+echo "Copying kernel"
+cp $KERNEL_DIR/arch/arm/boot/$KERNEL $ZIP_DIR/kernel/$KERNEL
 if [ -a $ZIMAGE ];
 then
 echo "Copying modules"
-#rm $MODULES_DIR/*
-find . -name '*.ko' -exec cp {} modules \;
-cd modules
+find . -name '*.ko' -exec cp {} $ZIP_DIR/system/lib/modules \;
+cd $ZIP_DIR/system/lib/modules
 echo "Stripping modules for size"
 $STRIP --strip-unneeded *.ko
-#zip -9 modules *
-#cd $KERNEL_DIR
-#echo "Creating boot image"
-#$MKBOOTFS ramdisk/ > $KERNEL_DIR/ramdisk.cpio
-#cat $KERNEL_DIR/ramdisk.cpio | gzip > $KERNEL_DIR/root.fs
-#$MKBOOTIMG --kernel $ZIMAGE --ramdisk $KERNEL_DIR/root.fs --cmdline "console=ttyHSL0,115200,n8 androidboot.hardware=qcom androidboot.selinux=permissive user_debug=31 msm_rtb.filter=0x3F ehci-hcd.park=3 maxcpus=2" --base 0x80200000 --pagesize 2048 --ramdiskaddr 0x02000000 -o $KERNEL_DIR/boot.img
-#cp boot.img $ZIP_DIR/
-#echo "Building flashable zip"
-#cd $ZIP_DIR
-#zip -r test *
+cd $KERNEL_DIR
+./zip.sh $1
 BUILD_END=$(date +"%s")
 DIFF=$(($BUILD_END - $BUILD_START))
 echo "Build completed in $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) seconds."
