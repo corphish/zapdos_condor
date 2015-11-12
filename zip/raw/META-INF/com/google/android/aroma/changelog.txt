@@ -1,0 +1,66 @@
+<b>--v1.9-- (11 November 2015)
+-Synced with latest CM changes.
+-Set SELinux to permissive permanently in kernel.
+-Kernel now available as 2 different version with 2 different downloads.
+-[BUILD]Enhanced and automated build scripts in use.</b>
+
+--v1.8-- (4 September 2015)
+-Reduced max and default current in charger control.
+-Added and reverted some stuff as an attempt to bring back lagless life.
+
+--v1.7-- (23 August 2015)
+-Updated base to latest CM sources.
+-Introducing Zapdos Charger Control, a mechanism to control charging current.
+-Implemented sysfs for pocket mode.
+-Enabled F2FS.
+-Fixed up gaming performance issues.
+
+--v1.6-- (22 July 2015)
+-Added Power Suspend drivers.
+-Added IntelliPlug.
+-Added IntelliThermal.
+-Added Dynamic Fsync, by faux123, ported to work with Power Suspend drivers by varun.chitre15, backported to Linux 3.4 by me.
+
+--v1.5-- (28 June 2015)
+-Switched to Aroma Installer
+-Kernel installation made available in 2 modes : i) With DT2W ii) Without DT2W
+-Some fixes in proximity sensor involvement in DT2W.
+-Optimized AES and SHA1 routines.
+
+--v1.4-- (26 June 2015)
+-Incremental update to initiate in-app updates.
+
+--v1.3--(12 June 2015)
+-Fixed doubletap2wake.
+-Fixed Accelerometer in kernel level.
+
+--v1.2--(3 June 2015)
+-Added Double Tap to Wake.
+-Improved square root algorithm.
+-Sound Recording capabilities extened to 320Kbps.
+-Disabled some debugging.
+-No 'dirty things' in Kernel Info.
+
+--v1.1-- (29 May 2015)
+1. Added SoundControl v3 by Faux123
+2. Dynamic ReadAhead Support
+3. Added I/O Scheduler
+          i. BFQ
+4.Enabled ARCH_POWER
+5.Added more governors
+          i. Ondemandplus
+          ii. Intellidemand
+          iii. Intelliactive
+          iv. Lionheart
+          v. Wheatley
+
+--Initial Build-- (24 May 2015)
+1. Disabled Gentle fair sleepers.
+2. Disabled CRC check.
+3. Reduced swappiness.
+4. Added bunch of advanced TCP Congestion Controls.
+5. Optimized SLUB.
+6. Asynchronous I/O latency to a solid-state disk greatly increased .
+7. NOATIME and NODIRATIME by default.
+8. Enabled aggressive multi-core power savings.
+9. Added various I/O Schedulers.
